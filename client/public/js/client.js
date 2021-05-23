@@ -51,9 +51,11 @@ socket.on('count', (answer) => {
     wrongPTag
   ).innerHTML = `Wrong answers: ${answer.wrong}`
 })
-socket.on('playerdisconnected', (msg) => {
-  const pTag = document.createElement('p')
-  countAnsTag.appendChild(pTag).innerHTML = msg
+socket.on('playerDisconnected', (msg) => {
+  const disconnectTag = document.createElement('div')
+  container.appendChild(disconnectTag)
+  const pTag = document.createElement('h1')
+  disconnectTag.appendChild(pTag).innerHTML = msg
 })
 socket.on('playerLeft', (end) => {
   container.innerHTML = ''
