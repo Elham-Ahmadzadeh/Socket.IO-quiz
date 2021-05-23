@@ -33,10 +33,29 @@ socket.on('sendOnlyQuestion', (res) => {
   const onlyQuestion = document.createElement('h2')
   divTag.appendChild(onlyQuestion).innerHTML = res
 })
-socket.on('end', (finish) => {
+socket.on('playerEnds', (finish) => {
   container.innerHTML = ''
   container.appendChild(finishTag).innerHTML = finish
 })
+
+socket.on('count', (answer) => {
+  const countAnsTag = document.createElement('div')
+  countAnsTag.className = 'CountGame'
+  container.appendChild(countAnsTag)
+  const correctPTag = document.createElement('p')
+  const wrongPTag = document.createElement('p')
+  countAnsTag.appendChild(
+    correctPTag
+  ).innerHTML = `Correct answers: ${answer.correct}`
+  countAnsTag.appendChild(
+    wrongPTag
+  ).innerHTML = `Wrong answers: ${answer.wrong}`
+})
+socket.on('playerdisconnected', (msg) => {
+  const pTag = document.createElement('p')
+  countAnsTag.appendChild(pTag).innerHTML = msg
+})
 socket.on('playerLeft', (end) => {
+  container.innerHTML = ''
   container.appendChild(finishTag).innerHTML = end
 })
