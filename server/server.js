@@ -12,6 +12,7 @@ const { fetchedApi } = require('./api')
 let index = 0
 let player = undefined
 let correctAnswer = undefined
+
 const sendNextQuestion = async function () {
   let data = await fetchedApi()
   let results = data.data.results
@@ -26,16 +27,22 @@ const sendNextQuestion = async function () {
     correctAnswer = results[0].correct_answer
     questionAndAnswers.all_answers = shuffle(questionAndAnswers.all_answers)
 
-    io.in('viewerRoom').emit(
-      'sendOnlyQuestion',
-      `Question${index + 1}: ${questionAndAnswers.question}`
-    )
     io.in('playerRoom').emit('sendQuestion', questionAndAnswers)
+    if (index <= 4) {
+      io.in('viewerRoom').emit(
+        'sendOnlyQuestion',
+        `Question${index + 1}: ${questionAndAnswers.question}`
+      )
+    } else {
+      finishGame()
+      countAnswers()
+    }
   } catch (err) {
     console.log(err)
   }
 }
-
+let correct = 0
+let wrong = 0
 io.on('connect', (socket) => {
   sendNextQuestion()
   if (player === undefined) {
@@ -48,39 +55,44 @@ io.on('connect', (socket) => {
   }
   console.log(`client with id ${socket.id} connected`)
   socket.on('checkAnswers', (ans) => {
-    index++
     sendNextQuestion()
+    index++
+
     if (ans === correctAnswer) {
       io.in('viewerRoom').emit('correctAnswer', `${ans}(correct) `)
+      correct++
     } else {
       io.in('viewerRoom').emit(
         'correctAnswer',
         `${ans}(wrong) The correct answer is ${correctAnswer}`
       )
-
-    }
-    if (index === 5) {
-      io.in('playerRoom').emit('end', 'Finished!')
-      changePlayer(socket)
+      wrong++
     }
   })
   socket.on('disconnect', () => {
-    console.log(`client ${socket.id} disconnected`)
+    console.log(`client with ${socket.id} disconnected`)
     if (socket.id === player) {
-      disconnectPlayer(socket)
+      disconnectPlayer()
     }
   })
 })
-
-function changePlayer(socket) {
-  socket.to('viewerRoom').emit('playerLeaves', 'Player is disconnected')
-  socket.leave('playerRoom')
-  index = 0
+function finishGame() {
+  if (index === 5) {
+    player = undefined
+    index = 0
+    io.emit('playerEnds', 'Quiz Finished!')
+  }
 }
-function disconnectPlayer(socket) {
+function countAnswers() {
+  io.emit('count', { correct, wrong })
+  correct = 0
+  wrong = 0
+}
+
+function disconnectPlayer() {
   player = undefined
-  socket.leave('playerRoom')
-  io.in('viewerRoom').emit('playerLeft', 'Player left the room!')
+  index = 0
+  io.in('viewerRoom').emit('playerdisconnected', `Player left the room!`)
 }
 server.listen(process.env.PORT || 3000, () =>
   console.log(`Server has started on port 3000.`)
