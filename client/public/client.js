@@ -9,7 +9,6 @@ const finishTag = document.createElement('h1')
 socket.on('player', (msg) => {
   container.appendChild(titleTag).textContent = msg
 })
-
 socket.on('sendQuestion', (q) => {
   container.appendChild(question).innerHTML = q.question
   btnContainer.innerHTML = ''
@@ -24,19 +23,16 @@ socket.on('sendQuestion', (q) => {
     }
   })
 })
-
 socket.on('correctAnswer', (ans) => {
   const pTag = document.createElement('p')
   container.appendChild(pTag).textContent = `Player answered: ${ans}`
 })
-
 socket.on('sendOnlyQuestion', (res) => {
   const divTag = document.createElement('div')
   container.appendChild(divTag)
   const onlyQuestion = document.createElement('h2')
   divTag.appendChild(onlyQuestion).innerHTML = res
 })
-
 socket.on('end', (finish) => {
   container.innerHTML = ''
   container.appendChild(finishTag).innerHTML = finish
@@ -44,6 +40,3 @@ socket.on('end', (finish) => {
 socket.on('playerLeft', (end) => {
   container.appendChild(finishTag).innerHTML = end
 })
-/* socket.on('playerLeaves', (finish) => {
-  titleTag.innerHTML = finish
-}) */
