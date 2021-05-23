@@ -92,7 +92,7 @@ function countAnswers() {
 function disconnectPlayer() {
   player = undefined
   index = 0
-  io.in('viewerRoom').emit('playerdisconnected', `Player left the room!`)
+  io.in('viewerRoom').emit('playerDisconnected', 'Player left the room!')
 }
 server.listen(process.env.PORT || 3000, () =>
   console.log(`Server has started on port 3000.`)
